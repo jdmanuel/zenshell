@@ -8,6 +8,8 @@ Designed to make Zendesk ticket creation a bit faster and easier -- particularly
 
 Modify the zenshell.cfg file, adding your own domain, and the email address and password for the agent for whom you wish to create tickets.
 
+Type "npm install" and press ENTER (necessary modules will be installed based on dependencies in package.json).
+
 ## Use ##
 
 Use the -c or --count flag to indicate the number of tickets you want to create:
@@ -34,6 +36,8 @@ This works for a few fields:
 ## Author ##
 
 J.D. Manuel
+
 jdmanuel@icloud.com
+
 License: MIT
 
