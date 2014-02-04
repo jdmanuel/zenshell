@@ -204,7 +204,7 @@ function postTicket(count) {
   };
 
   request.post({
-      url: "https://" + host +"/api/v2/tickets.json",
+      url: host + "/api/v2/tickets.json",
       auth: {
         'user': email,
         'pass': password,
