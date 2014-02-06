@@ -18,6 +18,8 @@ var request    = require('request'),
     ticketType = "",
     assignee = "",
 
+    assigneeId = null;
+
     ticketTypes = ["problem", "incident", "question", "comment"],
     priorities = ["urgent", "high", "normal", "low"],
     statuses = ["new", "open", "pending", "hold", "solved", "closed"];
@@ -26,6 +28,7 @@ var request    = require('request'),
 
 program
   .version('0.1.0')
+  .option('-q, --quiet', 'Quiet mode (suppress output)')
   .option('-x, --express', 'Express mode')
   .option('-t, --ticket_type [ticket_type]', 'Ticket type')
   .option('-p, --ticket_priority [ticket_priority]', 'Ticket priority')
@@ -123,7 +126,7 @@ function setExpressParameters(count) {
   createdAt = randomDate(new Date(oneYearAgo), new Date());
   assignee = email;
 
-  postTicket(count);
+  processParameters(count);
 }
 
 function getUserInput(count) {
@@ -162,7 +165,7 @@ function getUserInput(count) {
                 console.log("Your assignee is:", result);
                 assignee = result;
 
-                postTicket(count);
+                processParameters(count);
               });
             });
           });
@@ -191,17 +194,64 @@ function getParameter(question, loremIpsumUnits, defaultValue, callback) {
   });
 }
 
-function postTicket(count) {
-  var postData = {
-    'ticket': {
-      'subject': subject,
-      'description': description,
-      'created_at': createdAt,
-      'priority': priority,
-      'status': ticketStatus,
-      'type': ticketType
+function processParameters(count) {
+  assigneeId = findUserByEmail(assignee, count);
+}
+
+function findUserByEmail(userEmail, count) {
+  var searchUrl = 'http://dev.localhost:3000/api/v2/users/search.json?query="' + userEmail + '"';
+
+  request({
+    method: 'GET',
+    url: searchUrl,
+    auth: {
+        'user': email,
+        'pass': password,
+        'sendImmediately': true
     }
-  };
+  },
+
+  function(error, response, body) {
+    if (error) {
+      console.log(error);
+      console.log("Exiting...");
+      process.exit();
+    } else {
+      var userId = (JSON.parse(body)).users[0].id;
+      assigneeId = userId;
+      postTicket(count);
+    }
+  });
+}
+
+function postTicket(count) {
+  if (ticketType === 'incident') {
+    var postData = {
+      'ticket': {
+        'subject': subject,
+        'description': description,
+        'priority': priority,
+        'status': ticketStatus,
+        'type': ticketType,
+        'assignee_id': assigneeId
+      }
+    };
+  } else {
+    var postData = {
+      'ticket': {
+        'subject': subject,
+        'description': description,
+        'created_at': createdAt,
+        'priority': priority,
+        'status': ticketStatus,
+        'type': ticketType,
+        'assignee_id': assigneeId
+      }
+    };
+
+  }
+
+
 
   request.post({
       url: host + "/api/v2/tickets.json",
@@ -218,8 +268,15 @@ function postTicket(count) {
         if (error) {
           console.log("\n" + error);
         } else {
-          console.log("\n" + body);
-          console.log("\n" + response.statusCode);
+          if (response.statusCode == 201) {
+            console.log("\nSUCCESS:", response.statusCode);
+          } else {
+            console.log(response.statusCode);
+          }
+
+          if (!program.quiet) {
+            console.log("\n" + body + "\n");
+          }
 
           if (program.express) {
             setExpressParameters(--count);
