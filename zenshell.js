@@ -6,6 +6,7 @@ var request     = require('request'),
     output      = loremIpsum(),
     fs          = require('fs'),
     program     = require('commander'),
+    prettyjson  = require('prettyjson'),
 
     host = "",
     email = "",
@@ -29,12 +30,13 @@ var request     = require('request'),
 program
   .version('0.1.0')
   .option('-q, --quiet', 'Quiet mode (suppress output)')
+  .option('-j, --pretty', 'JSON pretty print')
   .option('-x, --express', 'Express mode / Command Line mode')
   .option('-s, --subject [ticket_subject]', 'Ticket subject')
   .option('-d, --description [ticket_description]', 'Ticket description')
   .option('-t, --type [ticket_type]', 'Ticket type')
   .option('-p, --priority [ticket_priority]', 'Ticket priority')
-  .option('-st, --status [ticket_status]', 'Ticket status')
+  .option('-z, --status [ticket_status]', 'Ticket status')
   .option('-a, --assignee [ticket_assignee]', 'Ticket assignee')
   .option('-c, --count [count]', 'Ticket count')
   .parse(process.argv);
@@ -53,6 +55,7 @@ function init() {
   var outstream = new stream;
   var rl = readline.createInterface(instream, outstream);
   var lineCount = 0;
+  var ticketCount = program.count || 1;
 
   rl.on('line', function(line) {
     if (lineCount == 0) {
@@ -70,9 +73,9 @@ function init() {
   rl.on('close', function() {
     // run for each ticket desired
     if (program.express) {
-      setExpressParameters(program.count);
+      setExpressParameters(ticketCount);
     } else {
-      getUserInput(program.count);
+      getUserInput(ticketCount);
     }
   });
 }
@@ -255,10 +258,29 @@ function postTicket(count) {
           }
 
           if (!program.quiet) {
-            console.log("\n" + body + "\n");
+            var output = (program.pretty) ? prettyjson.render(JSON.parse(body)) : body;
+            console.log("\n" + output + "\n");
           }
 
-          if (program.express) {
+          .version('0.1.0')
+  .option('-q, --quiet', 'Quiet mode (suppress output)')
+  .option('-j, --pretty', 'JSON pretty print')
+  .option('-x, --express', 'Express mode / Command Line mode')
+  .option('-s, --subject [ticket_subject]', 'Ticket subject')
+  .option('-d, --description [ticket_description]', 'Ticket description')
+  .option('-t, --type [ticket_type]', 'Ticket type')
+  .option('-p, --priority [ticket_priority]', 'Ticket priority')
+  .option('-z, --status [ticket_status]', 'Ticket status')
+  .option('-a, --assignee [ticket_assignee]', 'Ticket assignee')
+  .option('-c, --count [count]', 'Ticket count')
+
+          if (program.express     ||
+              program.subject     ||
+              program.description ||
+              program.type        ||
+              program.priority    ||
+              program.status      ||
+              program.assignee) {
             setExpressParameters(--count);
           } else {
             getUserInput(--count);

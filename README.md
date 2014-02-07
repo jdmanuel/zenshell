@@ -15,7 +15,7 @@ Type "npm install" and press ENTER (necessary modules will be installed based on
 Use the -c or --count flag to indicate the number of tickets you want to create:
 ./zenshell.js -c 3
 
-Currently, there are two modes -- regular and express.
+Currently, there are two modes -- regular and express, or command-line.
 
 In regular mode, you will be stepped through ticket creation.  You'll have a chance to specify each parameter currently supported.
 If you don't care about the value of a particular param, just press ENTER, and a default or random value will be assigned.
@@ -23,15 +23,25 @@ If you don't care about the value of a particular param, just press ENTER, and a
 To enable express, pass the -x or --express flag, e.g.:
 ./zenshell.js -x
 
-In express mode, all ticket values are default or random.  In other words, it is just as if you pressed ENTER when prompted for each parameter.  This is a good way to create tickets quickly.
+In express/command line mode, you can enter any number of allowed params via the command line and tickets will be initialized with those fields.
+If you don't specify any, it will be as though you pressed ENTER for every field while creating tickets in normal mode.
 
-You can enable express mode, while also specifying the value (for all tickets) for a particular field.  For example, say you want to create 5 urgent priority tickets.  To do so:
+For example:  ./zenshell.js -x -s "The quick brown fox" -t "problem" -a jp@zendesk.com -t "problem" -c 3
+This will create three tickets.  For each ticket, it will set the subject to "The quick brown fox", the assignee to "jp@zendesk.com", and the type to "problem."  All other fields will be randomized.
+
+Suppose you want to create 5 urgent priority tickets.  To do so:
 ./zenshell.js -x -p 'urgent' -c 5
 
-This works for a few fields:
--t --ticket_type ["problem", "incident", "question", "comment"]
--p --ticket_priority ["urgent", "high", "normal", "low"]
--s --ticket_status ["new", "open", "pending", "hold", "solved", "closed"]
+If you want to specify fields in this way, you can omit the "-x" option (it is only required if you do not specify any fields, and want them all set to random or default values).
+
+Supported fields:
+
+-s  --subject
+-d  --description
+-t  --type ["problem", "incident", "question", "comment"]
+-p  --priority ["urgent", "high", "normal", "low"]
+-st --status ["new", "open", "pending", "hold", "solved", "closed"]
+-a  --assignee [email address]
 
 ## Author ##
 
