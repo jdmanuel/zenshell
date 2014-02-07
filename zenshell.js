@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-var request    = require('request'),
+var request     = require('request'),
     querystring = require('qs'),
-    loremIpsum = require('lorem-ipsum'),
-    output     = loremIpsum(),
-    fs         = require('fs'),
-    program  = require('commander'),
+    loremIpsum  = require('lorem-ipsum'),
+    output      = loremIpsum(),
+    fs          = require('fs'),
+    program     = require('commander'),
 
     host = "",
     email = "",
@@ -29,11 +29,14 @@ var request    = require('request'),
 program
   .version('0.1.0')
   .option('-q, --quiet', 'Quiet mode (suppress output)')
-  .option('-x, --express', 'Express mode')
-  .option('-t, --ticket_type [ticket_type]', 'Ticket type')
-  .option('-p, --ticket_priority [ticket_priority]', 'Ticket priority')
-  .option('-s, --ticket_status [ticket_status]', 'Ticket status')
-  .option('-c, --ticket_count [ticket_count]', 'Ticket count')
+  .option('-x, --express', 'Express mode / Command Line mode')
+  .option('-s, --subject [ticket_subject]', 'Ticket subject')
+  .option('-d, --description [ticket_description]', 'Ticket description')
+  .option('-t, --type [ticket_type]', 'Ticket type')
+  .option('-p, --priority [ticket_priority]', 'Ticket priority')
+  .option('-st, --status [ticket_status]', 'Ticket status')
+  .option('-a, --assignee [ticket_assignee]', 'Ticket assignee')
+  .option('-c, --count [count]', 'Ticket count')
   .parse(process.argv);
 
 /* Main */
@@ -67,9 +70,9 @@ function init() {
   rl.on('close', function() {
     // run for each ticket desired
     if (program.express) {
-      setExpressParameters(program.ticket_count);
+      setExpressParameters(program.count);
     } else {
-      getUserInput(program.ticket_count);
+      getUserInput(program.count);
     }
   });
 }
@@ -112,19 +115,17 @@ function generateStrings(units, count, minWords, maxWords) {
 }
 
 function setExpressParameters(count) {
+
   if (count == 0) {
     process.exit();
   }
 
-  subject = generateStrings('sentences', 1, 5, 10);
-  description = generateStrings('paragraphs', 1, 5, 10);
-  ticketType = (program.ticket_type) ? program.ticket_type : randomTicketType();
-
-  priority = (program.ticket_priority) ? program.ticket_priority : randomPriority();
-  ticketStatus = (program.ticket_status) ? program.ticket_status : randomStatus();
-  var oneYearAgo = (new Date()).getTime() - (3600000 * 24 * 365);
-  createdAt = randomDate(new Date(oneYearAgo), new Date());
-  assignee = email;
+  subject = (program.subject) ? program.subject : generateStrings('sentences', 1, 5, 10);
+  description = (program.description) ? program.description : generateStrings('paragraphs', 1, 5, 10);
+  ticketType = (program.type) ? program.type : randomTicketType();
+  priority = (program.priority) ? program.priority : randomPriority();
+  ticketStatus = (program.status) ? program.status : randomStatus();
+  assignee = (program.assignee) ? program.assignee : email;
 
   processParameters(count);
 }
@@ -157,16 +158,11 @@ function getUserInput(count) {
             console.log("Your status is:", result);
             ticketStatus = result;
 
-            getParameter("\nCreated At", null, new Date(), function(result) {
-              console.log("Your createdAt is:", result);
-              createdAt = result;
+            getParameter("\nAssignee", null, email, function(result) {
+              console.log("Your assignee is:", result);
+              assignee = result;
 
-              getParameter("\nAssignee", null, email, function(result) {
-                console.log("Your assignee is:", result);
-                assignee = result;
-
-                processParameters(count);
-              });
+              processParameters(count);
             });
           });
         });
@@ -217,6 +213,7 @@ function findUserByEmail(userEmail, count) {
       console.log("Exiting...");
       process.exit();
     } else {
+      // console.log(body);
       var userId = (JSON.parse(body)).users[0].id;
       assigneeId = userId;
       postTicket(count);
@@ -225,33 +222,16 @@ function findUserByEmail(userEmail, count) {
 }
 
 function postTicket(count) {
-  if (ticketType === 'incident') {
-    var postData = {
-      'ticket': {
-        'subject': subject,
-        'description': description,
-        'priority': priority,
-        'status': ticketStatus,
-        'type': ticketType,
-        'assignee_id': assigneeId
-      }
-    };
-  } else {
-    var postData = {
-      'ticket': {
-        'subject': subject,
-        'description': description,
-        'created_at': createdAt,
-        'priority': priority,
-        'status': ticketStatus,
-        'type': ticketType,
-        'assignee_id': assigneeId
-      }
-    };
-
-  }
-
-
+  var postData = {
+    'ticket': {
+      'subject': subject,
+      'description': description,
+      'priority': priority,
+      'status': ticketStatus,
+      'type': ticketType,
+      'assignee_id': assigneeId
+    }
+  };
 
   request.post({
       url: host + "/api/v2/tickets.json",
