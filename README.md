@@ -36,12 +36,12 @@ If you want to specify fields in this way, you can omit the "-x" option (it is o
 
 Supported fields:
 
--s  --subject
--d  --description
--t  --type ["problem", "incident", "question", "comment"]
--p  --priority ["urgent", "high", "normal", "low"]
--st --status ["new", "open", "pending", "hold", "solved", "closed"]
--a  --assignee [email address]
+* -s  --subject
+* -d  --description
+* -t  --type ["problem", "incident", "question", "comment"]
+* -p  --priority ["urgent", "high", "normal", "low"]
+* -st --status ["new", "open", "pending", "hold", "solved", "closed"]
+* -a  --assignee [email address]
 
 ## Author ##
 
