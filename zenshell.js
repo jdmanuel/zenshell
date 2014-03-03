@@ -262,18 +262,6 @@ function postTicket(count) {
             console.log("\n" + output + "\n");
           }
 
-          .version('0.1.0')
-  .option('-q, --quiet', 'Quiet mode (suppress output)')
-  .option('-j, --pretty', 'JSON pretty print')
-  .option('-x, --express', 'Express mode / Command Line mode')
-  .option('-s, --subject [ticket_subject]', 'Ticket subject')
-  .option('-d, --description [ticket_description]', 'Ticket description')
-  .option('-t, --type [ticket_type]', 'Ticket type')
-  .option('-p, --priority [ticket_priority]', 'Ticket priority')
-  .option('-z, --status [ticket_status]', 'Ticket status')
-  .option('-a, --assignee [ticket_assignee]', 'Ticket assignee')
-  .option('-c, --count [count]', 'Ticket count')
-
           if (program.express     ||
               program.subject     ||
               program.description ||
