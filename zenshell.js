@@ -198,7 +198,7 @@ function processParameters(count) {
 }
 
 function findUserByEmail(userEmail, count) {
-  var searchUrl = 'http://dev.localhost:3000/api/v2/users/search.json?query="' + userEmail + '"';
+  var searchUrl = host + '/api/v2/users/search.json?query="' + userEmail + '"';
 
   request({
     method: 'GET',
