@@ -203,6 +203,7 @@ function findUserByEmail(userEmail, count) {
   request({
     method: 'GET',
     url: searchUrl,
+    rejectUnauthorized: false,
     auth: {
         'user': email,
         'pass': password,
@@ -238,6 +239,7 @@ function postTicket(count) {
 
   request.post({
       url: host + "/api/v2/tickets.json",
+      rejectUnauthorized: false,
       auth: {
         'user': email,
         'pass': password,
